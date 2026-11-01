@@ -16,7 +16,8 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-// Specific local origins permitted for frontend development
+
+// Permitted origins for frontend clients (development and production)
 const ALLOWED_ORIGINS = [
   'http://localhost:5173',
   'http://localhost:5174',
@@ -24,9 +25,18 @@ const ALLOWED_ORIGINS = [
   'http://127.0.0.1:5174'
 ];
 
+// Production frontend origin configured via FRONTEND_URL
+if (process.env.FRONTEND_URL) {
+  const prodOrigin = process.env.FRONTEND_URL.trim().replace(/\/+$/, '');
+  if (prodOrigin && prodOrigin !== '*' && !ALLOWED_ORIGINS.includes(prodOrigin)) {
+    ALLOWED_ORIGINS.push(prodOrigin);
+  }
+}
+
+// Optional additional CORS origins (comma-separated, no wildcards)
 if (process.env.CORS_ORIGIN) {
   process.env.CORS_ORIGIN.split(',').forEach(origin => {
-    const trimmed = origin.trim();
+    const trimmed = origin.trim().replace(/\/+$/, '');
     if (trimmed && trimmed !== '*' && !ALLOWED_ORIGINS.includes(trimmed)) {
       ALLOWED_ORIGINS.push(trimmed);
     }
@@ -81,7 +91,7 @@ export async function startServer(port = PORT, dbPath) {
     console.log('✅ SQLite Database initialized successfully.');
 
     return new Promise((resolve) => {
-      const server = app.listen(port, () => {
+      const server = app.listen(port, '0.0.0.0', () => {
         console.log(`🚀 PR Sentinel Backend running at http://localhost:${port}`);
         console.log(`📡 Health Check: http://localhost:${port}/api/health`);
         console.log(`🔍 Analysis Endpoint: POST http://localhost:${port}/api/analyze`);

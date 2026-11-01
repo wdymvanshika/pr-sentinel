@@ -154,4 +154,22 @@ test.describe('PR Sentinel Express HTTP API Endpoints', () => {
     assert.equal(body.success, false);
     assert.equal(body.error.code, 'ERR_ROUTE_NOT_FOUND');
   });
+
+  test('CORS allows requests from permitted origin', async () => {
+    const res = await fetch(`${baseUrl}/api/health`, {
+      headers: { Origin: 'http://localhost:5173' }
+    });
+    assert.equal(res.status, 200);
+    assert.equal(res.headers.get('access-control-allow-origin'), 'http://localhost:5173');
+  });
+
+  test('CORS rejects requests from untrusted external origin', async () => {
+    const res = await fetch(`${baseUrl}/api/health`, {
+      headers: { Origin: 'https://malicious-untrusted-origin.com' }
+    });
+    assert.equal(res.status, 500);
+    const body = await res.json();
+    assert.equal(body.success, false);
+    assert.ok(body.error.message.includes('CORS blocked'));
+  });
 });

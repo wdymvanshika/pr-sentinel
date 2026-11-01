@@ -257,3 +257,71 @@ Test output:
 ℹ pass 22
 ℹ fail 0
 ```
+
+---
+
+## ☁️ Deploying on Render (Production Guide)
+
+PR Sentinel Backend is architected to deploy directly to [Render](https://render.com) as a **Web Service**.
+
+### 1. Render Web Service Settings
+
+When creating a new Web Service on the Render dashboard:
+
+| Setting | Value | Notes |
+|---|---|---|
+| **Root Directory** | `backend` | If deploying from a monorepo containing both frontend and backend |
+| **Environment** | `Node` | Node.js runtime |
+| **Node Version** | `>= 22.5.0` | Specified in `package.json` under `engines` to support `node:sqlite` |
+| **Build Command** | `npm install` | Installs production dependencies |
+| **Start Command** | `npm start` | Runs `node src/server.js` |
+| **Health Check Path** | `/api/health` | Render automatically verifies server availability |
+
+---
+
+### 2. Environment Variables Configuration
+
+Set these variables in the **Environment** tab of your Render service:
+
+| Variable | Recommended Production Value | Description |
+|---|---|---|
+| `NODE_ENV` | `production` | Enables production optimizations |
+| `FRONTEND_URL` | `https://your-frontend-app.onrender.com` | Production URL of your React frontend app for CORS whitelist |
+| `PORT` | *(Leave empty)* | Render assigns this dynamically (e.g. `10000`). The backend automatically binds to `process.env.PORT` |
+| `DB_PATH` | `./data/sentinel.db` *(or disk mount path)* | SQLite database file location |
+| `CORS_ORIGIN` | *(Optional)* | Extra comma-separated origins if needed |
+
+---
+
+### 3. Production CORS Security
+
+- **Strict Origin Whitelist**: In production, CORS is restricted to your `FRONTEND_URL` and standard local development ports (`5173`, `5174`).
+- **No Wildcard Origins**: Unrestricted wildcard origins (`*`) are explicitly avoided to protect API integrity and credentials.
+- **Safe Fallback**: If `FRONTEND_URL` is omitted, the API continues operating safely and accepts development origins or non-browser server-to-server calls without crashing.
+- **Trailing Slash Normalization**: Any trailing slash in `FRONTEND_URL` is automatically stripped to prevent CORS header mismatches.
+
+---
+
+### 4. SQLite Storage & Ephemeral Hosting Limitations
+
+> [!WARNING]
+> **Ephemeral Filesystem Limitation on Render**
+>
+> By default, the SQLite database file is stored at `./data/sentinel.db` inside the backend directory.
+>
+> On Render's standard and free hosting tiers, the container filesystem is **ephemeral**:
+> 1. Any files written to the local disk exist only in the running container instance.
+> 2. Whenever a new deployment occurs, the service restarts, or Render suspends an inactive free instance, **the filesystem is wiped and restored to the Git repository state**.
+> 3. Any analysis history saved to `./data/sentinel.db` during that session will be reset.
+
+#### Production Solutions for Data Durability:
+1. **Render Persistent Disk** *(Recommended for SQLite)*:
+   - In Render, attach a Persistent Disk (e.g., 1 GB mounted at `/var/data`).
+   - Set the environment variable:
+     ```env
+     DB_PATH=/var/data/sentinel.db
+     ```
+   - All analyses will persist across restarts, redeployments, and crashes.
+2. **External Database**:
+   - For high-volume multi-instance scaling, SQLite can be replaced with a managed database service such as Render PostgreSQL, Supabase, or Turso.
+

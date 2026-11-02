@@ -548,31 +548,22 @@ To ensure technical transparency, the current scope and known limitations of the
 
 ## 📸 Application Screenshots
 
-> *Screenshots from the production build:*
+> *High-resolution screenshots captured directly from the live deployed application:*
 
 ### 1. Landing Page & Hero
-<!-- Replace with: docs/screenshots/landing-page.png -->
-```
-[ PLACEHOLDER: Landing Page Hero & Feature Overview ]
-```
+![PR Sentinel Landing Page](screenshots/landing-page.png)
 
-### 2. Code Analyzer & Editor
-<!-- Replace with: docs/screenshots/code-analyzer.png -->
-```
-[ PLACEHOLDER: Code Analyzer with Code Snippet & Language Selector ]
-```
+### 2. Code Analytics Dashboard
+![PR Sentinel Dashboard](screenshots/dashboard.png)
 
-### 3. Detailed Analysis Results & Remediation Cards
-<!-- Replace with: docs/screenshots/analysis-results.png -->
-```
-[ PLACEHOLDER: Quality Score Gauge, Verdict Badge, and Code Fix Suggestions ]
-```
+### 3. Interactive Code Analyzer
+![PR Sentinel Code Analyzer](screenshots/code-analyzer.png)
 
-### 4. Review History & Analytics Dashboard
-<!-- Replace with: docs/screenshots/dashboard.png -->
-```
-[ PLACEHOLDER: Quality Trends Chart and Historical Scans Audit Table ]
-```
+### 4. Detailed Analysis Results & Remediation Cards
+![PR Sentinel Analysis Results](screenshots/analysis-results.png)
+
+### 5. Review History Audit Table
+![PR Sentinel Analysis History](screenshots/analysis-history.png)
 
 ---
 
